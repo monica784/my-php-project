@@ -72,4 +72,3 @@ CMR University, Bengaluru
 
 ---
 
-*Timeline: 3 Days | Task 1 of the Internship Program*
