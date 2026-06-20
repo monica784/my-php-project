@@ -16,6 +16,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
         if($user && password_verify($password, $user['password'])) {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
+            $_SESSION['role'] = $user['role']; // store role for permission checks
             header('Location: index.php');
             exit;
         } else {
@@ -43,7 +44,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
     <h1>🔐 Login</h1>
     <?php if($error): ?>
-        <p class="error"><?= $error ?></p>
+        <p class="error"><?= htmlspecialchars($error) ?></p>
     <?php endif; ?>
     <form method="POST">
         <input type="text" name="username" placeholder="Username" required>

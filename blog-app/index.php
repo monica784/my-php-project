@@ -237,7 +237,11 @@ $accent_colors = ['#5b5fef', '#ef5b8e', '#19b08a', '#f6a014', '#3aa6e0'];
                     <h2 class="card-title h5"><span class="badge-color"></span><?= htmlspecialchars($post['title']) ?></h2>
                     <p class="card-text"><?= htmlspecialchars($post['content']) ?></p>
                     <p class="post-meta mb-2">Posted on <?= $post['created_at'] ?></p>
-                    <?php if(isset($_SESSION['user_id'])): ?>
+                    <?php
+                        $can_manage = isset($_SESSION['user_id']) &&
+                            (($post['user_id'] == $_SESSION['user_id']) || ($_SESSION['role'] === 'admin'));
+                    ?>
+                    <?php if($can_manage): ?>
                         <div class="actions">
                             <a href="edit.php?id=<?= $post['id'] ?>" class="edit-link">Edit</a>
                             <a href="delete.php?id=<?= $post['id'] ?>" class="delete-link" onclick="return confirm('Delete this post?')">Delete</a>
