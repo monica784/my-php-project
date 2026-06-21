@@ -17,6 +17,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['role'] = $user['role']; // store role for permission checks
+            $_SESSION['previous_login'] = $user['last_login']; // last login before this one
+
+            // Update last_login to now
+            $update = $pdo->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
+            $update->execute([$user['id']]);
+
             header('Location: index.php');
             exit;
         } else {

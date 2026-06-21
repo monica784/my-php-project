@@ -40,6 +40,14 @@ if ($search !== '') {
 }
 $posts = $stmt->fetchAll();
 
+// ---- USER STATS (last login + post count) ----
+$user_post_count = null;
+if(isset($_SESSION['user_id'])) {
+    $count_user_posts = $pdo->prepare("SELECT COUNT(*) FROM posts WHERE user_id = ?");
+    $count_user_posts->execute([$_SESSION['user_id']]);
+    $user_post_count = $count_user_posts->fetchColumn();
+}
+
 $search_param = $search !== '' ? '&search=' . urlencode($search) : '';
 
 // Color palette to cycle through for post card accents
@@ -93,6 +101,56 @@ $accent_colors = ['#5b5fef', '#ef5b8e', '#19b08a', '#f6a014', '#3aa6e0'];
             font-weight: 600;
         }
         .navbar-custom .btn-new-post:hover { background: #fff0f5; color: var(--accent-dark); }
+
+        .profile-badge {
+            position: relative;
+            display: inline-block;
+        }
+        .profile-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.18);
+            color: white;
+            padding: 5px 14px 5px 6px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            user-select: none;
+        }
+        .profile-pill .avatar {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: white;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: calc(100% + 10px);
+            background: white;
+            color: #2d2d3a;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(40,40,90,0.18);
+            padding: 14px 18px;
+            min-width: 220px;
+            z-index: 50;
+            font-size: 0.88rem;
+        }
+        .profile-badge:hover .profile-dropdown,
+        .profile-badge:focus-within .profile-dropdown { display: block; }
+        .profile-dropdown .row { display: flex; justify-content: space-between; padding: 4px 0; }
+        .profile-dropdown .row span:first-child { color: #8a8aa3; }
+        .profile-dropdown .row strong { color: #1f1f2e; }
+        .profile-dropdown hr { border: none; border-top: 1px solid #ececf5; margin: 6px 0; }
 
         .page-title {
             font-weight: 700;
@@ -176,6 +234,21 @@ $accent_colors = ['#5b5fef', '#ef5b8e', '#19b08a', '#f6a014', '#3aa6e0'];
             box-shadow: 0 4px 16px rgba(91,95,239,0.1);
         }
 
+        .stats-card {
+            background: white;
+            border-radius: 14px;
+            padding: 0.9rem 1.25rem;
+            box-shadow: 0 2px 10px rgba(40,40,90,0.06);
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #5a5a6e;
+        }
+        .stats-card strong { color: #1f1f2e; }
+
         .badge-color {
             display: inline-block;
             width: 10px;
@@ -192,6 +265,19 @@ $accent_colors = ['#5b5fef', '#ef5b8e', '#19b08a', '#f6a014', '#3aa6e0'];
     <a class="navbar-brand" href="index.php">📝 Blog App</a>
     <div class="ms-auto d-flex align-items-center gap-3">
         <?php if(isset($_SESSION['user_id'])): ?>
+            <div class="profile-badge" tabindex="0">
+                <div class="profile-pill">
+                    <span class="avatar"><?= strtoupper(substr($_SESSION['username'], 0, 1)) ?></span>
+                    <?= htmlspecialchars($_SESSION['username']) ?>
+                </div>
+                <div class="profile-dropdown">
+                    <div class="row"><span>Role</span><strong><?= htmlspecialchars(ucfirst($_SESSION['role'])) ?></strong></div>
+                    <div class="row"><span>Your posts</span><strong><?= $user_post_count ?></strong></div>
+                    <hr>
+                    <div class="row"><span>Last login</span></div>
+                    <div class="row"><strong><?= $_SESSION['previous_login'] ? date('d M Y, H:i', strtotime($_SESSION['previous_login'])) : 'First time here!' ?></strong></div>
+                </div>
+            </div>
             <a href="create.php" class="btn-new-post">+ New Post</a>
             <a href="logout.php" class="nav-link">Logout</a>
         <?php else: ?>
